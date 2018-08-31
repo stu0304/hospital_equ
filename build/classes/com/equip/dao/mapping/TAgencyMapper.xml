@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.equip.dao.TAgencyDao" >
+  <resultMap id="BaseResultMap" type="com.equip.model.TAgency" >
+    <id column="t_agency_id" property="tAgencyId" jdbcType="VARCHAR" />
+    <result column="t_license" property="tLicense" jdbcType="VARCHAR" />
+    <result column="t_permit_no" property="tPermitNo" jdbcType="VARCHAR" />
+    <result column="t_agency_name" property="tAgencyName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    t_agency_id, t_license, t_permit_no, t_agency_name
+  </sql>
+  <select id="selectAllAgency" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_agency
+       <if test="tAgencyName !=''">
+          where  t_agency_name like concat(concat('%',#{tAgencyName}),'%')    
+      </if>
+       limit #{nextStartPage,jdbcType=INTEGER},#{v_pageSize,jdbcType=INTEGER} 
+ 
+  </select>
+  
+   <select id="selectCountAgency" resultType="String">
+        select count(1) from t_agency
+     </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_agency
+    where t_agency_id = #{tAgencyId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_agency
+    where t_agency_id = #{tAgencyId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.equip.model.TAgency" >
+    insert into t_agency (t_agency_id, t_license, t_permit_no, 
+      t_agency_name)
+    values (#{tAgencyId,jdbcType=VARCHAR}, #{tLicense,jdbcType=VARCHAR}, #{tPermitNo,jdbcType=VARCHAR}, 
+      #{tAgencyName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.equip.model.TAgency" >
+    insert into t_agency
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tAgencyId != null" >
+        t_agency_id,
+      </if>
+      <if test="tLicense != null" >
+        t_license,
+      </if>
+      <if test="tPermitNo != null" >
+        t_permit_no,
+      </if>
+      <if test="tAgencyName != null" >
+        t_agency_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tAgencyId != null" >
+        #{tAgencyId,jdbcType=VARCHAR},
+      </if>
+      <if test="tLicense != null" >
+        #{tLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="tPermitNo != null" >
+        #{tPermitNo,jdbcType=VARCHAR},
+      </if>
+      <if test="tAgencyName != null" >
+        #{tAgencyName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.equip.model.TAgency" >
+    update t_agency
+    <set >
+      <if test="tLicense != null" >
+        t_license = #{tLicense,jdbcType=VARCHAR},
+      </if>
+      <if test="tPermitNo != null" >
+        t_permit_no = #{tPermitNo,jdbcType=VARCHAR},
+      </if>
+      <if test="tAgencyName != null" >
+        t_agency_name = #{tAgencyName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_agency_id = #{tAgencyId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.equip.model.TAgency" >
+    update t_agency
+    set t_license = #{tLicense,jdbcType=VARCHAR},
+      t_permit_no = #{tPermitNo,jdbcType=VARCHAR},
+      t_agency_name = #{tAgencyName,jdbcType=VARCHAR}
+    where t_agency_id = #{tAgencyId,jdbcType=VARCHAR}
+  </update>
+</mapper>

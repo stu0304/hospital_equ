@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.equip.dao.TSysUserDao" >
+  <resultMap id="BaseResultMap" type="com.equip.model.TSysUser" >
+    <id column="t_user_id" property="tUserId" jdbcType="VARCHAR" />
+    <result column="t_user_name" property="tUserName" jdbcType="VARCHAR" />
+    <result column="t_user_pwd" property="tUserPwd" jdbcType="VARCHAR" />
+    <result column="t_role" property="tRole" jdbcType="VARCHAR" />
+    <result column="t_status" property="tStatus" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <resultMap id="myVoUserPerson" type="com.equip.model.VOUserPerson" >
+    <id column="t_user_id" property="tUserId" jdbcType="VARCHAR" />
+    <result column="t_user_name" property="tUserName" jdbcType="VARCHAR" />
+    <result column="t_user_pwd" property="tUserPwd" jdbcType="VARCHAR" />
+    <result column="t_role" property="tRole" jdbcType="VARCHAR" />
+    <result column="t_status" property="tStatus" jdbcType="VARCHAR" />
+    <result column="t_name" property="tDicId" jdbcType="VARCHAR" />
+    <result column="t_gender" property="tGender" jdbcType="VARCHAR" />
+    <result column="t_mobile" property="tMobile" jdbcType="VARCHAR" />
+    <result column="t_email" property="tEmail" jdbcType="VARCHAR" />
+    <result column="t_cname" property="tCname" jdbcType="VARCHAR" />
+     <result column="t_role_dicid" property="tRoleDicID" jdbcType="VARCHAR" />
+  </resultMap>
+  
+<sql id="Base_Column_List" >
+    t_user_id, t_user_name, t_user_pwd, t_role, t_status
+  </sql>
+  
+    <select id="selectCountSysUser" resultType="String">
+        select count(1) from t_sys_user
+     </select>
+  
+  <select id="selectUserPerson" resultMap="myVoUserPerson" parameterType="com.equip.model.VOUserPerson" >
+	select u.t_user_id,u.t_user_name,u.t_role 't_role_dicid',
+	case when u.t_status='-1' then 'a'
+	else 'b' end mystatus
+	,d.t_name 't_role',IFNULL(p.t_cname,'-') t_cname,IFNULL(p.t_gender,'-') t_gender,IFNULL(dc.t_name,'-') t_name,IFNULL(p.t_mobile,'-') t_mobile,IFNULL(p.t_email,'-') t_email 
+from t_sys_user u left join t_dic_code d
+on u.t_role=d.t_dic_code left join t_person p on u.t_user_id=p.t_user_id left join t_dic_code dc on dc.t_dic_code=p.t_dic_id 
+			    <if test="tUserName != null" >
+		    where u.t_user_name like concat(concat('%',#{tUserName}),'%')
+      </if>
+      order by mystatus
+		     limit #{nextStartPage,jdbcType=INTEGER},#{v_pageSize,jdbcType=INTEGER} 
+    </select>
+    
+   <select id="checkOriginalPwd" resultMap="BaseResultMap" parameterType="com.equip.model.TSysUser" >
+   select     
+   <include refid="Base_Column_List" />
+    from t_sys_user u 
+    where u.t_user_id=#{tUserId,jdbcType=VARCHAR} and u.t_user_pwd=#{tUserPwd,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="loginUser" resultMap="BaseResultMap" parameterType="com.equip.model.TSysUser" >
+    select u.t_user_id,u.t_user_name,u.t_user_pwd,u.t_status,d.t_name 't_role' from t_sys_user u LEFT JOIN t_dic_code d
+	on u.t_role=d.t_dic_code where u.t_user_name=#{tUserName,jdbcType=VARCHAR} 
+ 	and u.t_user_pwd=#{tUserPwd,jdbcType=VARCHAR}
+ 	 and u.t_status!=-1
+  </select>
+  
+  <select id="selectAllSysUser" resultMap="BaseResultMap" parameterType="com.equip.model.TSysUser" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_sys_user
+    
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_sys_user
+    where t_user_id = #{tUserId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_sys_user
+    where t_user_id = #{tUserId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.equip.model.TSysUser" >
+    insert into t_sys_user (t_user_id, t_user_name, t_user_pwd, 
+      t_role, t_status)
+    values (#{tUserId,jdbcType=VARCHAR}, #{tUserName,jdbcType=VARCHAR}, #{tUserPwd,jdbcType=VARCHAR}, 
+      #{tRole,jdbcType=VARCHAR}, #{tStatus,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.equip.model.TSysUser" >
+   insert into t_sys_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tUserId != null" >
+        t_user_id,
+      </if>
+      <if test="tUserName != null" >
+        t_user_name,
+      </if>
+      <if test="tUserPwd != null" >
+        t_user_pwd,
+      </if>
+      <if test="tRole != null" >
+        t_role,
+      </if>
+      <if test="tStatus != null" >
+        t_status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tUserId != null" >
+        #{tUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="tUserName != null" >
+        #{tUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="tUserPwd != null" >
+        #{tUserPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="tRole != null" >
+        #{tRole,jdbcType=VARCHAR},
+      </if>
+      <if test="tStatus != null" >
+        #{tStatus,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.equip.model.TSysUser" >
+      update t_sys_user
+    <set >
+      <if test="tUserName != null" >
+        t_user_name = #{tUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="tUserPwd != null" >
+        t_user_pwd = #{tUserPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="tRole != null" >
+        t_role = #{tRole,jdbcType=VARCHAR},
+      </if>
+      <if test="tStatus != null" >
+        t_status = #{tStatus,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_user_id = #{tUserId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.equip.model.TSysUser" >
+    update t_sys_user
+    set t_user_name = #{tUserName,jdbcType=VARCHAR},
+      t_user_pwd = #{tUserPwd,jdbcType=VARCHAR},
+      t_role = #{tRole,jdbcType=VARCHAR},
+      t_status = #{tStatus,jdbcType=VARCHAR}
+    where t_user_id = #{tUserId,jdbcType=VARCHAR}
+  </update>
+</mapper>

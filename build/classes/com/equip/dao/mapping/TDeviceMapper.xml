@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.equip.dao.TDeviceDao" >
+  <resultMap id="BaseResultMap" type="com.equip.model.TDevice" >
+     <id column="t_equip_id" property="tEquipId" jdbcType="VARCHAR" />
+    <result column="t_agency_id" property="tAgencyId" jdbcType="VARCHAR" />
+    <result column="t_dic_code" property="tDicCode" jdbcType="VARCHAR" />
+    <result column="t_device_name" property="tDeviceName" jdbcType="VARCHAR" />
+    <result column="t_dtype" property="tDtype" jdbcType="VARCHAR" />
+    <result column="t_factory" property="tFactory" jdbcType="VARCHAR" />
+    <result column="t_dnumber" property="tDnumber" jdbcType="VARCHAR" />
+    <result column="t_buy_date" property="tBuyDate" jdbcType="VARCHAR" />
+    <result column="t_check_date" property="tCheckDate" jdbcType="VARCHAR" />
+    <result column="t_sid" property="tSid" jdbcType="VARCHAR" />
+    <result column="t_check_circle" property="tCheckCircle" jdbcType="VARCHAR" />
+    <result column="t_left_day" property="leftDay" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="alarmChartResultId" type="com.equip.model.ChartObject" >
+     <id column="t_equip_id" property="chartId" jdbcType="VARCHAR" />
+    <result column="t_name" property="ctype" jdbcType="VARCHAR" />
+    <result column="totalnum" property="cnum" jdbcType="VARCHAR" />
+  </resultMap>
+  
+    <resultMap id="detailMap" type="com.equip.model.VOAgencyAtt" >
+    <result column="t_license" property="tLicense" jdbcType="VARCHAR" />
+    <result column="t_permit_no" property="tPermitNo" jdbcType="VARCHAR" />
+    <result column="t_agency_name" property="tAgencyName" jdbcType="VARCHAR" />
+      	<result column="t_attname" property="tAttname" jdbcType="VARCHAR" />
+    	<result column="t_atturl" property="tAtturl" jdbcType="VARCHAR" />
+  </resultMap>
+  
+    <resultMap id="oneDeviceForUpdate" type="com.equip.model.VODeviceAtt" >
+		<id column="t_equip_id" property="tEquipId" jdbcType="VARCHAR" />
+        <result column="t_factory" property="tFactory" jdbcType="VARCHAR" />
+    	<result column="t_device_name" property="tDeviceName" jdbcType="VARCHAR" />
+    	<result column="t_dnumber" property="tDnumber" jdbcType="VARCHAR" />
+    	<result column="t_buy_date" property="tBuyDate" jdbcType="VARCHAR" />
+    	<result column="t_check_circle" property="tCheckCircle" jdbcType="VARCHAR" />
+    	<result column="t_attid" property="tAttID" jdbcType="VARCHAR" />
+    	<result column="t_attname" property="tAttname" jdbcType="VARCHAR" />
+    	<result column="t_atturl" property="tAtturl" jdbcType="VARCHAR" />
+    	 <result column="t_dic_code" property="keshiCode" jdbcType="VARCHAR" />
+    	<result column="t_agency_id" property="supportCode" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+   t_equip_id, t_agency_id, t_dic_code, t_device_name, t_dtype, t_factory, t_dnumber, 
+    t_buy_date, t_check_date, t_sid, t_check_circle
+  </sql>
+  
+  <select id="getDevcieByName" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_device
+    where t_device_name = #{dname,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getDeviceDetail" resultMap="detailMap" parameterType="java.lang.String">
+		select a.t_agency_name,a.t_license,a.t_permit_no,t.t_attname,t.t_atturl from t_device d LEFT JOIN t_agency a 
+			on d.t_agency_id=a.t_agency_id
+		LEFT JOIN t_attenchment t on d.t_equip_id=t.t_id
+			where d.t_equip_id=#{tEquipId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectCountDevice" resultType="String">
+        select count(1) from t_device
+     </select>
+  
+   <select id="selectAllDevices" resultMap="BaseResultMap" parameterType="com.equip.model.TDevice" >
+			 select d.t_equip_id,c.t_name 't_dic_code',d.t_device_name,
+			d.t_buy_date,d.t_check_date,d.t_check_circle,d.t_agency_id,t_dnumber,
+(SELECT to_days(date_add(d.t_check_date,interval d.t_check_circle day))-to_days(now())) 't_left_day',
+   case when      
+(SELECT to_days(date_add(d.t_check_date,interval d.t_check_circle day))-to_days(now()))<![CDATA[<=d.t_dnumber ]]>  
+			 then '-1'
+  else '0' 
+end 't_sid'
+        
+from t_device d left join t_dic_code c
+			on d.t_dic_code=c.t_dic_code
+			<choose>
+			<when test="(tDicCode != null and tDicCode !='' and tDicCode !='myall') and (tDeviceName != null and tDeviceName !='')">
+    where d.t_dic_code=#{tDicCode,jdbcType=VARCHAR} and d.t_device_name like concat(concat('%',#{tDeviceName}),'%')
+    </when>
+    <when test="tDicCode != null and tDicCode !='' and tDicCode !='myall'">
+    where d.t_dic_code=#{tDicCode,jdbcType=VARCHAR} 
+    </when>
+        <when test="tDeviceName != null and tDeviceName !=''">
+    where   d.t_device_name like concat(concat('%',#{tDeviceName}),'%')
+    </when>
+</choose>
+    order by t_left_day asc
+		  limit #{nextStartPage,jdbcType=INTEGER},#{v_pageSize,jdbcType=INTEGER} 
+   
+  </select>
+  <select id="getChartPieDeviceNum" resultMap="alarmChartResultId">
+  select d.t_name,count(1) totalnum from t_device e left join t_dic_code d 
+on e.t_dic_code=d.t_dic_code
+GROUP BY e.t_dic_code 
+  </select>
+  
+  <select id="getCharColAlarmNum" resultMap="alarmChartResultId">
+				 select c.t_name,sum(
+			case when      
+			(SELECT to_days(
+			date_add(d.t_check_date,interval d.t_check_circle day))
+			-to_days(now()))<![CDATA[<=d.t_dnumber ]]> 
+						 then 1
+			  else 0 end) totalnum
+			 from t_device d left join t_dic_code c on d.t_dic_code=c.t_dic_code group by d.t_dic_code
+  </select>
+  <select id="getCharColAlarmNumReady" resultMap="alarmChartResultId">
+			select c.t_name,sum(
+			case when      
+			(SELECT to_days(
+			date_add(d.t_check_date,interval d.t_check_circle day))
+			-to_days(now()))<![CDATA[>d.t_dnumber ]]> 
+						 then 1
+			  else 0 end) totalnum
+			 from t_device d left join t_dic_code c on d.t_dic_code=c.t_dic_code group by d.t_dic_code
+  </select>
+  
+    <select id="selectOneDeviceForUpdate" resultMap="oneDeviceForUpdate" parameterType="java.lang.String" >
+	select d.t_equip_id,d.t_dic_code,d.t_agency_id,d.t_factory,d.t_device_name,d.t_buy_date,d.t_check_circle,d.t_dnumber,
+a.t_attid,a.t_attname,a.t_atturl from t_device d left join t_attenchment a on d.t_equip_id=a.t_id
+where d.t_equip_id=#{tEquipId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_device
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_device
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.equip.model.TDevice" >
+    insert into t_device (t_equip_id, t_agency_id, t_dic_code, 
+      t_device_name, t_dtype, t_factory, 
+      t_dnumber, t_buy_date, t_check_date, 
+      t_sid, t_check_circle)
+    values (#{tEquipId,jdbcType=VARCHAR}, #{tAgencyId,jdbcType=VARCHAR}, #{tDicCode,jdbcType=VARCHAR}, 
+      #{tDeviceName,jdbcType=VARCHAR}, #{tDtype,jdbcType=VARCHAR}, #{tFactory,jdbcType=VARCHAR}, 
+      #{tDnumber,jdbcType=VARCHAR}, #{tBuyDate,jdbcType=VARCHAR}, #{tCheckDate,jdbcType=VARCHAR}, 
+      #{tSid,jdbcType=VARCHAR}, #{tCheckCircle,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.equip.model.TDevice" >
+    insert into t_device
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tEquipId != null" >
+        t_equip_id,
+      </if>
+      <if test="tAgencyId != null" >
+        t_agency_id,
+      </if>
+      <if test="tDicCode != null" >
+        t_dic_code,
+      </if>
+      <if test="tDeviceName != null" >
+        t_device_name,
+      </if>
+      <if test="tDtype != null" >
+        t_dtype,
+      </if>
+      <if test="tFactory != null" >
+        t_factory,
+      </if>
+      <if test="tDnumber != null" >
+        t_dnumber,
+      </if>
+      <if test="tBuyDate != null" >
+        t_buy_date,
+      </if>
+      <if test="tCheckDate != null" >
+        t_check_date,
+      </if>
+      <if test="tSid != null" >
+        t_sid,
+      </if>
+      <if test="tCheckCircle != null" >
+        t_check_circle,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tEquipId != null" >
+        #{tEquipId,jdbcType=VARCHAR},
+      </if>
+      <if test="tAgencyId != null" >
+        #{tAgencyId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicCode != null" >
+        #{tDicCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tDeviceName != null" >
+        #{tDeviceName,jdbcType=VARCHAR},
+      </if>
+      <if test="tDtype != null" >
+        #{tDtype,jdbcType=VARCHAR},
+      </if>
+      <if test="tFactory != null" >
+        #{tFactory,jdbcType=VARCHAR},
+      </if>
+      <if test="tDnumber != null" >
+        #{tDnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="tBuyDate != null" >
+        #{tBuyDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckDate != null" >
+        #{tCheckDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tSid != null" >
+        #{tSid,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckCircle != null" >
+        #{tCheckCircle,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.equip.model.TDevice" >
+    update t_device
+    <set >
+      <if test="tAgencyId != null" >
+        t_agency_id = #{tAgencyId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicCode != null" >
+        t_dic_code = #{tDicCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tDeviceName != null" >
+        t_device_name = #{tDeviceName,jdbcType=VARCHAR},
+      </if>
+      <if test="tDtype != null" >
+        t_dtype = #{tDtype,jdbcType=VARCHAR},
+      </if>
+      <if test="tFactory != null" >
+        t_factory = #{tFactory,jdbcType=VARCHAR},
+      </if>
+      <if test="tDnumber != null" >
+        t_dnumber = #{tDnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="tBuyDate != null" >
+        t_buy_date = #{tBuyDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckDate != null" >
+        t_check_date = #{tCheckDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tSid != null" >
+        t_sid = #{tSid,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckCircle != null" >
+        t_check_circle = #{tCheckCircle,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.equip.model.TDevice" >
+    update t_device
+    set t_agency_id = #{tAgencyId,jdbcType=VARCHAR},
+      t_dic_code = #{tDicCode,jdbcType=VARCHAR},
+      t_device_name = #{tDeviceName,jdbcType=VARCHAR},
+      t_dtype = #{tDtype,jdbcType=VARCHAR},
+      t_factory = #{tFactory,jdbcType=VARCHAR},
+      t_dnumber = #{tDnumber,jdbcType=VARCHAR},
+      t_buy_date = #{tBuyDate,jdbcType=VARCHAR},
+      t_check_date = #{tCheckDate,jdbcType=VARCHAR},
+      t_sid = #{tSid,jdbcType=VARCHAR},
+      t_check_circle = #{tCheckCircle,jdbcType=VARCHAR}
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </update>
+</mapper>

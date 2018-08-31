@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="test.IDao.TDeviceMapper" >
+  <resultMap id="BaseResultMap" type="test.domain.TDevice" >
+    <id column="t_equip_id" property="tEquipId" jdbcType="VARCHAR" />
+    <result column="t_agency_id" property="tAgencyId" jdbcType="VARCHAR" />
+    <result column="t_dic_code" property="tDicCode" jdbcType="VARCHAR" />
+    <result column="t_device_name" property="tDeviceName" jdbcType="VARCHAR" />
+    <result column="t_dtype" property="tDtype" jdbcType="VARCHAR" />
+    <result column="t_factory" property="tFactory" jdbcType="VARCHAR" />
+    <result column="t_dnumber" property="tDnumber" jdbcType="VARCHAR" />
+    <result column="t_buy_date" property="tBuyDate" jdbcType="VARCHAR" />
+    <result column="t_check_date" property="tCheckDate" jdbcType="VARCHAR" />
+    <result column="t_sid" property="tSid" jdbcType="VARCHAR" />
+    <result column="t_check_circle" property="tCheckCircle" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    t_equip_id, t_agency_id, t_dic_code, t_device_name, t_dtype, t_factory, t_dnumber, 
+    t_buy_date, t_check_date, t_sid, t_check_circle
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_device
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_device
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="test.domain.TDevice" >
+    insert into t_device (t_equip_id, t_agency_id, t_dic_code, 
+      t_device_name, t_dtype, t_factory, 
+      t_dnumber, t_buy_date, t_check_date, 
+      t_sid, t_check_circle)
+    values (#{tEquipId,jdbcType=VARCHAR}, #{tAgencyId,jdbcType=VARCHAR}, #{tDicCode,jdbcType=VARCHAR}, 
+      #{tDeviceName,jdbcType=VARCHAR}, #{tDtype,jdbcType=VARCHAR}, #{tFactory,jdbcType=VARCHAR}, 
+      #{tDnumber,jdbcType=VARCHAR}, #{tBuyDate,jdbcType=VARCHAR}, #{tCheckDate,jdbcType=VARCHAR}, 
+      #{tSid,jdbcType=VARCHAR}, #{tCheckCircle,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="test.domain.TDevice" >
+    insert into t_device
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tEquipId != null" >
+        t_equip_id,
+      </if>
+      <if test="tAgencyId != null" >
+        t_agency_id,
+      </if>
+      <if test="tDicCode != null" >
+        t_dic_code,
+      </if>
+      <if test="tDeviceName != null" >
+        t_device_name,
+      </if>
+      <if test="tDtype != null" >
+        t_dtype,
+      </if>
+      <if test="tFactory != null" >
+        t_factory,
+      </if>
+      <if test="tDnumber != null" >
+        t_dnumber,
+      </if>
+      <if test="tBuyDate != null" >
+        t_buy_date,
+      </if>
+      <if test="tCheckDate != null" >
+        t_check_date,
+      </if>
+      <if test="tSid != null" >
+        t_sid,
+      </if>
+      <if test="tCheckCircle != null" >
+        t_check_circle,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tEquipId != null" >
+        #{tEquipId,jdbcType=VARCHAR},
+      </if>
+      <if test="tAgencyId != null" >
+        #{tAgencyId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicCode != null" >
+        #{tDicCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tDeviceName != null" >
+        #{tDeviceName,jdbcType=VARCHAR},
+      </if>
+      <if test="tDtype != null" >
+        #{tDtype,jdbcType=VARCHAR},
+      </if>
+      <if test="tFactory != null" >
+        #{tFactory,jdbcType=VARCHAR},
+      </if>
+      <if test="tDnumber != null" >
+        #{tDnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="tBuyDate != null" >
+        #{tBuyDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckDate != null" >
+        #{tCheckDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tSid != null" >
+        #{tSid,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckCircle != null" >
+        #{tCheckCircle,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="test.domain.TDevice" >
+    update t_device
+    <set >
+      <if test="tAgencyId != null" >
+        t_agency_id = #{tAgencyId,jdbcType=VARCHAR},
+      </if>
+      <if test="tDicCode != null" >
+        t_dic_code = #{tDicCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tDeviceName != null" >
+        t_device_name = #{tDeviceName,jdbcType=VARCHAR},
+      </if>
+      <if test="tDtype != null" >
+        t_dtype = #{tDtype,jdbcType=VARCHAR},
+      </if>
+      <if test="tFactory != null" >
+        t_factory = #{tFactory,jdbcType=VARCHAR},
+      </if>
+      <if test="tDnumber != null" >
+        t_dnumber = #{tDnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="tBuyDate != null" >
+        t_buy_date = #{tBuyDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckDate != null" >
+        t_check_date = #{tCheckDate,jdbcType=VARCHAR},
+      </if>
+      <if test="tSid != null" >
+        t_sid = #{tSid,jdbcType=VARCHAR},
+      </if>
+      <if test="tCheckCircle != null" >
+        t_check_circle = #{tCheckCircle,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="test.domain.TDevice" >
+    update t_device
+    set t_agency_id = #{tAgencyId,jdbcType=VARCHAR},
+      t_dic_code = #{tDicCode,jdbcType=VARCHAR},
+      t_device_name = #{tDeviceName,jdbcType=VARCHAR},
+      t_dtype = #{tDtype,jdbcType=VARCHAR},
+      t_factory = #{tFactory,jdbcType=VARCHAR},
+      t_dnumber = #{tDnumber,jdbcType=VARCHAR},
+      t_buy_date = #{tBuyDate,jdbcType=VARCHAR},
+      t_check_date = #{tCheckDate,jdbcType=VARCHAR},
+      t_sid = #{tSid,jdbcType=VARCHAR},
+      t_check_circle = #{tCheckCircle,jdbcType=VARCHAR}
+    where t_equip_id = #{tEquipId,jdbcType=VARCHAR}
+  </update>
+</mapper>

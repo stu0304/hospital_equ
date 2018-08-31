@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.equip.dao.TAttenchmentDao" >
+  <resultMap id="BaseResultMap" type="com.equip.model.TAttenchment" >
+    <id column="t_attid" property="tAttid" jdbcType="VARCHAR" />
+    <result column="t_id" property="tId" jdbcType="VARCHAR" />
+    <result column="t_attname" property="tAttname" jdbcType="VARCHAR" />
+    <result column="t_type" property="tType" jdbcType="VARCHAR" />
+    <result column="t_atturl" property="tAtturl" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    t_attid, t_id, t_attname, t_type, t_atturl
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_attenchment
+    where t_attid = #{tAttid,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="getAllAttByTid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_attenchment
+    where t_id = #{tId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_attenchment
+    where t_attid = #{tAttid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.equip.model.TAttenchment" >
+    insert into t_attenchment (t_attid, t_id, t_attname, 
+      t_type, t_atturl)
+    values (#{tAttid,jdbcType=VARCHAR}, #{tId,jdbcType=VARCHAR}, #{tAttname,jdbcType=VARCHAR}, 
+      #{tType,jdbcType=VARCHAR}, #{tAtturl,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.equip.model.TAttenchment" >
+    insert into t_attenchment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tAttid != null" >
+        t_attid,
+      </if>
+      <if test="tId != null" >
+        t_id,
+      </if>
+      <if test="tAttname != null" >
+        t_attname,
+      </if>
+      <if test="tType != null" >
+        t_type,
+      </if>
+      <if test="tAtturl != null" >
+        t_atturl,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tAttid != null" >
+        #{tAttid,jdbcType=VARCHAR},
+      </if>
+      <if test="tId != null" >
+        #{tId,jdbcType=VARCHAR},
+      </if>
+      <if test="tAttname != null" >
+        #{tAttname,jdbcType=VARCHAR},
+      </if>
+      <if test="tType != null" >
+        #{tType,jdbcType=VARCHAR},
+      </if>
+      <if test="tAtturl != null" >
+        #{tAtturl,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.equip.model.TAttenchment" >
+    update t_attenchment
+    <set >
+      <if test="tId != null" >
+        t_id = #{tId,jdbcType=VARCHAR},
+      </if>
+      <if test="tAttname != null" >
+        t_attname = #{tAttname,jdbcType=VARCHAR},
+      </if>
+      <if test="tType != null" >
+        t_type = #{tType,jdbcType=VARCHAR},
+      </if>
+      <if test="tAtturl != null" >
+        t_atturl = #{tAtturl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where t_attid = #{tAttid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.equip.model.TAttenchment" >
+    update t_attenchment
+    set t_id = #{tId,jdbcType=VARCHAR},
+      t_attname = #{tAttname,jdbcType=VARCHAR},
+      t_type = #{tType,jdbcType=VARCHAR},
+      t_atturl = #{tAtturl,jdbcType=VARCHAR}
+    where t_attid = #{tAttid,jdbcType=VARCHAR}
+  </update>
+</mapper>
